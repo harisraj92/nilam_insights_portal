@@ -1,6 +1,4 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
+# Node modules and package managers
 /node_modules
 /.pnp
 .pnp.*
@@ -9,33 +7,76 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.pnpm-store/
 
-# testing
-/coverage
-
-# next.js
-/.next/
-/out/
-
-# production
-/build
-
-# misc
-.DS_Store
-*.pem
-
-# debug
+# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
+pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# Build outputs
+/build
+/.next
+/out
+/dist
+
+# Coverage directory
+/coverage
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Environment files
 .env*
+!.env.example
 
-# vercel
-.vercel
+# SSL certs or keys
+*.pem
+*.key
+*.crt
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE settings
+.vscode/
+.idea/
+*.swp
+
+# Vercel
+.vercel/
+
+# Local serverless framework
+.serverless/
+
+# Optional lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+# (only ignore these if you want reproducible installs excluded)
+
+# Mac/Linux temporary files
+*.sublime-workspace
+*.sublime-project
+*.log
+*.pid
+
+# Static cache
+.cache/
+.next/cache
+
+# Storybook (if used)
+.out/
+.storybook-out/
+
+# Playwright / Cypress test results
+/test-results/
+.cypress/
+
+# Optional local databases
+*.sqlite
+*.db
+*.db-journal

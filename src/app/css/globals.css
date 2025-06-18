@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@import "@flaticon/flaticon-uicons/css/all/all.css";
+
+@theme {
+  --color-primary: #7f56d9;
+  --color-secondary: #53389e;
+}
+
+body {
+  font-family: "Roboto Flex", sans-serif;
+}
+
+/* Always show vertical scrollbar */
+.scrollbar-visible {
+  scrollbar-width: auto; /* Firefox */
+  scrollbar-color: #53389e transparent; /* Firefox */
+
+  /* Chrome, Edge, Safari */
+}
+.scrollbar-visible::-webkit-scrollbar {
+  width: 2px;
+}
+
+.scrollbar-visible::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb {
+  background-color: #53389e; /* Tailwind gray-300 */
+  border-radius: 2px;
+}
+
+/* Reusable input class */
+.input {
+  @apply block w-full px-4 py-2 border border-gray-300 rounded-md text-sm shadow-sm 
+          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+}
+
+.label {
+  @apply block mb-1 text-sm font-medium text-gray-700;
+}
+
+/* ❌ Cannot @apply .input — rewrite it inline instead */
+.textarea {
+  @apply block w-full px-4 py-2 border border-gray-300 rounded-md text-sm shadow-sm 
+          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary h-28 resize-none;
+}
+
+.select {
+  @apply block w-full px-4 py-2 border border-gray-300 rounded-md text-sm shadow-sm 
+          placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary bg-white appearance-none;
+}
+
+.checkbox {
+  @apply h-4 w-4 text-primary border-gray-300 rounded focus:ring-primary;
+}
