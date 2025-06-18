@@ -1,8 +1,7 @@
 
 import "./css/globals.css";
 import { Roboto_Flex } from "next/font/google";
-
-import { Toaster } from 'react-hot-toast';
+import LayoutWrapper from "./components/layout/layoutwrapper";
 
 const roboto_flex = Roboto_Flex({
   subsets: ['latin'],
@@ -70,10 +69,8 @@ export default function RootLayout({ children }) {
 
       </head>
       <body>
-
-
-        <Toaster position="top-right" />
-        {children}
+        <LayoutWrapper>
+          {children}</LayoutWrapper>
       </body>
     </html>
   );
