@@ -10,6 +10,8 @@ const LoginForm = () => {
     const [step, setStep] = useState('send');
     const [loading, setLoading] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + '/auth';
+
     const router = useRouter();
 
     useEffect(() => {
@@ -29,46 +31,47 @@ const LoginForm = () => {
     }, [resendCooldown]);
 
     const normalizeContact = (input) => {
-        if (!input) return '';
         const trimmed = input.trim();
-        return trimmed.includes('@')
-            ? trimmed.toLowerCase()
-            : trimmed.startsWith('+') ? trimmed : `+91${trimmed}`;
+        if (trimmed.includes('@')) return trimmed.toLowerCase();
+        return trimmed.replace(/^\+91/, '');  // Remove +91 if present
     };
+
 
     const sendOtp = async () => {
         setLoading(true);
         const normalized = normalizeContact(contact);
 
         try {
-            const res = await fetch('/api/send-otp', {
+            const res = await fetch(`${baseUrl}/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contact: normalized }),
             });
 
             const data = await res.json();
-            if (data.success) {
+            if (res.ok && data.success) {
                 setStep('verify');
                 sessionStorage.setItem('otp_contact', normalized);
                 sessionStorage.setItem('otp_sent_at', Date.now().toString());
                 setResendCooldown(30);
                 toast.success('OTP sent successfully');
             } else {
-                toast.error(data.message || 'Failed to send OTP');
+                toast.error(data.detail || data.message || 'Failed to send OTP');
             }
         } catch (err) {
+            console.error(err);
             toast.error('Server error while sending OTP');
         }
         setLoading(false);
     };
+
 
     const verifyOtp = async () => {
         setLoading(true);
         const normalized = normalizeContact(contact);
 
         try {
-            const res = await fetch('/api/verify-otp', {
+            const res = await fetch(`${baseUrl}/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ contact: normalized, otp }),
