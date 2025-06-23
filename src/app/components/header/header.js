@@ -25,6 +25,7 @@ const Header = ({ onToggleSidebar }) => {
     }, []);
 
     const handleLogout = () => {
+        sessionStorage.removeItem("auth_token");
         localStorage.removeItem("loggedInUser");
         localStorage.removeItem("currentRole");
         toast.success("Logged out successfully");

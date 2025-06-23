@@ -80,6 +80,7 @@ const LoginForm = () => {
             const data = await res.json();
             if (data.success) {
                 toast.success('OTP verified! Redirecting...');
+                sessionStorage.setItem('auth_token', data.token);
                 sessionStorage.removeItem('otp_contact');
                 sessionStorage.removeItem('otp_sent_at');
                 router.push('/customer/dashboard');
