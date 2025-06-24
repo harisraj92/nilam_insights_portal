@@ -12,8 +12,19 @@ export default function Sidebar({ isOpen, onClose }) {
 
     useEffect(() => {
         const role = localStorage.getItem('currentRole') || 'customer';
-        getFilteredNavItems(role).then(setMenuItems);
-    }, []);
+        getFilteredNavItems(role).then(items => {
+            setMenuItems(items);
+
+            // Auto-expand submenu if current pathname matches any child href
+            const newExpanded = {};
+            items.forEach(item => {
+                if (item.submenu?.some(sub => pathname === sub.href)) {
+                    newExpanded[item.label] = true;
+                }
+            });
+            setExpandedGroups(newExpanded);
+        });
+    }, [pathname]);
 
     const toggleGroup = (label) => {
         setExpandedGroups(prev => ({
@@ -23,12 +34,14 @@ export default function Sidebar({ isOpen, onClose }) {
     };
 
     const handleLinkClick = () => {
-        if (onClose) onClose(); // for mobile
+        if (onClose) onClose(); // Close sidebar on mobile
     };
 
     return (
         <>
-            {isOpen && <div className="fixed inset-0 bg-white bg-opacity-40 z-40 md:hidden" onClick={onClose} />}
+            {isOpen && (
+                <div className="fixed inset-0 bg-white bg-opacity-40 z-40 md:hidden" onClick={onClose} />
+            )}
             <aside
                 className={`fixed top-[130px] left-0 h-[calc(100vh-64px)]
                      w-64 z-50 transform transition-transform duration-300
@@ -49,7 +62,7 @@ export default function Sidebar({ isOpen, onClose }) {
                                 >
                                     <div className="flex items-center gap-3">
                                         <i className={`${iconClass} text-xl`} />
-                                        {href ? (
+                                        {href && !hasChildren ? (
                                             <Link href={href} onClick={handleLinkClick}>
                                                 <span>{label}</span>
                                             </Link>

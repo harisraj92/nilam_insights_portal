@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 
+
 export default function CustomerDashboard() {
     const [data, setData] = useState(null);
     const router = useRouter();
@@ -40,6 +41,7 @@ export default function CustomerDashboard() {
 
     return (
         <div>
+
             <h1 className="text-xl font-bold">Welcome to Dashboard</h1>
             {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
         </div>
