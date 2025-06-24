@@ -1,3 +1,5 @@
+/// This file contains the navigation  dummy items for the application. example
+
 const navItems = [
     {
         label: "Dashboard",
