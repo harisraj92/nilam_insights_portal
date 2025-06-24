@@ -1,64 +1,29 @@
 'use client';
 
-import navItems from "./navItems";
+const getFilteredNavItems = async (role) => {
+    try {
+        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
-const normalizeLabel = (label) =>
-    label?.trim().replace(/[^\w\s]/g, "").replace(/\s+/g, " ").toLowerCase();
+        const response = await fetch(`${baseUrl}/sidebar/${role}`);
+        if (!response.ok) throw new Error('Failed to fetch sidebar items');
+        const items = await response.json();
 
-const getFilteredNavItems = () => {
-    // Ensure code only runs on client
-    if (typeof window === "undefined") return [];
+        // Use backend response structure
+        return items.map(item => ({
+            label: item.label,
+            iconClass: item.iconClass || '',
+            href: item.href || null,
+            submenu: (item.submenu || []).map(sub => ({
+                label: sub.label,
+                href: sub.href,
+                iconClass: sub.iconClass || ''
+            }))
+        }));
 
-    const currentRole = localStorage.getItem("currentRole");
-    const permissionsRaw = localStorage.getItem("pagePermissions");
-    const permissions = permissionsRaw ? JSON.parse(permissionsRaw) : {};
-
-    // 🔁 If Admin role is missing or has no access, initialize with all labels
-    if (!permissions.Admin || permissions.Admin.length === 0) {
-        const allLabels = [];
-
-        const extractLabels = (items) => {
-            for (const item of items) {
-                if (item.label) allLabels.push(item.label);
-                if (item.children) extractLabels(item.children);
-            }
-        };
-
-        extractLabels(navItems);
-        permissions.Admin = [...allLabels];
-
-        localStorage.setItem("pagePermissions", JSON.stringify(permissions));
-        localStorage.setItem("navRefreshToken", Date.now().toString());
-        window.dispatchEvent(new Event("reloadSidebarNav"));
-
-        console.log("✅ Initialized Admin permission with all pages");
+    } catch (error) {
+        console.error("Sidebar fetch error:", error);
+        return [];
     }
-
-    const allowedRaw = permissions[currentRole] || [];
-    const allowedNormalized = new Set(allowedRaw.map(normalizeLabel));
-
-    const filterNav = (items) =>
-        items
-            .map((item) => {
-                const labelNorm = normalizeLabel(item.label);
-                const isAllowed = allowedNormalized.has(labelNorm);
-
-                if (item.children) {
-                    const children = filterNav(item.children);
-                    if (isAllowed || children.length > 0) {
-                        return {
-                            ...item,
-                            children: children.length ? children : undefined,
-                        };
-                    }
-                    return null;
-                }
-
-                return isAllowed ? item : null;
-            })
-            .filter(Boolean);
-
-    return filterNav(navItems);
 };
 
 export default getFilteredNavItems;

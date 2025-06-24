@@ -83,7 +83,7 @@ const LoginForm = () => {
                 sessionStorage.setItem('auth_token', data.token);
                 sessionStorage.removeItem('otp_contact');
                 sessionStorage.removeItem('otp_sent_at');
-                router.push('/customer/dashboard');
+                router.push('/customer/dashboard/property_summary');
             } else {
                 toast.error(data.message || 'Invalid OTP');
             }

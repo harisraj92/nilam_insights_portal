@@ -10,67 +10,59 @@ export default function Sidebar({ isOpen, onClose }) {
     const [menuItems, setMenuItems] = useState([]);
     const [expandedGroups, setExpandedGroups] = useState({});
 
-    // Load initial menu items
     useEffect(() => {
-        setMenuItems(getFilteredNavItems());
-    }, []);
+        const role = localStorage.getItem('currentRole') || 'customer';
+        getFilteredNavItems(role).then(items => {
+            setMenuItems(items);
 
-    // Restore expandedGroups from localStorage
-    useEffect(() => {
-        const saved = localStorage.getItem('expandedGroups');
-        if (saved) setExpandedGroups(JSON.parse(saved));
-    }, []);
-
-    // Save expandedGroups to localStorage on change
-    useEffect(() => {
-        localStorage.setItem('expandedGroups', JSON.stringify(expandedGroups));
-    }, [expandedGroups]);
-
-    // Handle external reloadSidebarNav event
-    useEffect(() => {
-        const reload = () => setMenuItems(getFilteredNavItems());
-        window.addEventListener("reloadSidebarNav", reload);
-        return () => window.removeEventListener("reloadSidebarNav", reload);
-    }, []);
+            // Auto-expand submenu if current pathname matches any child href
+            const newExpanded = {};
+            items.forEach(item => {
+                if (item.submenu?.some(sub => pathname === sub.href)) {
+                    newExpanded[item.label] = true;
+                }
+            });
+            setExpandedGroups(newExpanded);
+        });
+    }, [pathname]);
 
     const toggleGroup = (label) => {
-        setExpandedGroups((prev) => ({
+        setExpandedGroups(prev => ({
             ...prev,
-            [label]: !prev[label],
+            [label]: !prev[label]
         }));
     };
 
     const handleLinkClick = () => {
-        if (onClose) onClose(); // Close drawer on mobile
+        if (onClose) onClose(); // Close sidebar on mobile
     };
 
     return (
         <>
             {isOpen && (
-                <div
-                    className="fixed inset-0 bg-black bg-opacity-40 z-40 md:hidden"
-                    onClick={onClose}
-                />
+                <div className="fixed inset-0 bg-white bg-opacity-40 z-40 md:hidden" onClick={onClose} />
             )}
-
             <aside
-                className={`fixed top-[180px] left-0 h-[calc(100vh-80px)] w-64 border-r border-gray-200 bg-white z-50 transform transition-transform md:static md:h-auto md:top-0 md:translate-x-0 overflow-y-auto ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}
+                className={`fixed top-[130px] left-0 h-[calc(100vh-64px)]
+                     w-64 z-50 transform transition-transform duration-300
+                      bg-white md:static md:translate-x-0 md:h-auto md:top-0 overflow-y-auto shadow-lg border-r
+                       border-gray-200 ${isOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
             >
                 <nav className="p-4 space-y-2 min-h-full">
-                    {menuItems.map(({ label, href, iconClass, children }) => {
+                    {menuItems.map(({ label, href, iconClass, submenu }) => {
                         const isActive = href && pathname.startsWith(href);
-                        const hasChildren = children && children.length > 0;
+                        const hasChildren = submenu && submenu.length > 0;
 
                         return (
-                            <div key={`${label}-${href || 'group'}`} className="group">
-                                {/* Top-level item */}
+                            <div key={label} className="group">
                                 <div
-                                    className={`flex items-center justify-between px-4 py-2 rounded-md text-sm cursor-pointer transition-colors
-            ${isActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-secondary hover:text-white'}`}
+                                    className={`flex items-center justify-between px-4 py-2 rounded-md text-sm cursor-pointer transition-colors ${isActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-secondary hover:text-white'}`}
+                                    onClick={() => hasChildren ? toggleGroup(label) : null}
                                 >
                                     <div className="flex items-center gap-3">
                                         <i className={`${iconClass} text-xl`} />
-                                        {href ? (
+                                        {href && !hasChildren ? (
                                             <Link href={href} onClick={handleLinkClick}>
                                                 <span>{label}</span>
                                             </Link>
@@ -78,28 +70,20 @@ export default function Sidebar({ isOpen, onClose }) {
                                             <span>{label}</span>
                                         )}
                                     </div>
-
                                     {hasChildren && (
-                                        <span className="text-xs transition-transform group-hover:rotate-90"><i className="fi fi-bs-angle-right px-2"></i></span>
+                                        <span className={`transition-transform duration-200 ${expandedGroups[label] ? 'rotate-90' : ''}`}>
+                                            <i className="fi fi-bs-angle-right px-2"></i>
+                                        </span>
                                     )}
                                 </div>
 
-                                {/* Submenu appears directly below */}
-                                {hasChildren && (
-                                    <div
-                                        className={`ml-6 mt-1 space-y-1 overflow-hidden transition-all duration-300 ease-in-out
-      ${children.some(child => pathname.startsWith(child.href)) ? 'max-h-[400px]' : 'max-h-0 group-hover:max-h-[400px]'}`}
-                                    >
-                                        {children.map((child) => {
-                                            const isChildActive = pathname.startsWith(child.href);
+                                {hasChildren && expandedGroups[label] && (
+                                    <div className="ml-6 mt-1 space-y-1">
+                                        {submenu.map((child) => {
+                                            const isChildActive = pathname === child.href;
                                             return (
                                                 <Link key={child.href} href={child.href} onClick={handleLinkClick}>
-                                                    <div
-                                                        className={`flex items-center gap-3 mt-1 px-4 py-2 rounded-md text-sm cursor-pointer transition-colors
-                      ${isChildActive
-                                                                ? 'bg-primary text-white'
-                                                                : 'text-gray-700 hover:bg-gray-100'}`}
-                                                    >
+                                                    <div className={`flex items-center gap-3 mt-1 px-4 py-2 rounded-md text-sm cursor-pointer transition-colors ${isChildActive ? 'bg-primary text-white' : 'text-gray-700 hover:bg-gray-100'}`}>
                                                         <i className={`${child.iconClass} text-base`} />
                                                         {child.label}
                                                     </div>
@@ -112,8 +96,6 @@ export default function Sidebar({ isOpen, onClose }) {
                         );
                     })}
                 </nav>
-
-
             </aside>
         </>
     );
