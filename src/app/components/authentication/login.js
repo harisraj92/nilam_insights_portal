@@ -11,7 +11,7 @@ const LoginForm = () => {
     const [loading, setLoading] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + '/auth';
-
+    console.log("Base URL:", baseUrl);
     const router = useRouter();
 
     useEffect(() => {
@@ -48,7 +48,13 @@ const LoginForm = () => {
                 body: JSON.stringify({ contact: normalized }),
             });
 
-            const data = await res.json();
+            let data = {};
+            try {
+                data = await res.json();
+            } catch (jsonErr) {
+                console.warn("Invalid JSON response", jsonErr);
+            }
+
             if (res.ok && data.success) {
                 setStep('verify');
                 sessionStorage.setItem('otp_contact', normalized);
@@ -56,7 +62,7 @@ const LoginForm = () => {
                 setResendCooldown(30);
                 toast.success('OTP sent successfully');
             } else {
-                toast.error(data.detail || data.message || 'Failed to send OTP');
+                toast.error(data?.detail || data?.message || 'Failed to send OTP');
             }
         } catch (err) {
             console.error(err);
@@ -64,6 +70,7 @@ const LoginForm = () => {
         }
         setLoading(false);
     };
+
 
 
     const verifyOtp = async () => {
@@ -80,9 +87,10 @@ const LoginForm = () => {
             const data = await res.json();
             if (data.success) {
                 toast.success('OTP verified! Redirecting...');
-                sessionStorage.setItem('auth_token', data.token);
+                sessionStorage.setItem('auth_token', data.access_token);
                 sessionStorage.removeItem('otp_contact');
                 sessionStorage.removeItem('otp_sent_at');
+                localStorage.setItem('loggedInUser', JSON.stringify(data.user));
                 router.push('/customer/dashboard/property_summary');
             } else {
                 toast.error(data.message || 'Invalid OTP');
@@ -115,7 +123,7 @@ const LoginForm = () => {
                         <button
                             onClick={sendOtp}
                             disabled={loading || !contact}
-                            className="w-full bg-primary text-white py-2 rounded hover:bg-secondary"
+                            className="w-full bg-primary text-white py-2 rounded cursor-pointer hover:bg-secondary"
                         >
                             {loading ? 'Sending OTP...' : 'Send OTP'}
                         </button>
@@ -134,7 +142,7 @@ const LoginForm = () => {
                         <button
                             onClick={verifyOtp}
                             disabled={loading || !otp}
-                            className="w-full bg-primary text-white py-2 rounded hover:bg-secondary"
+                            className="w-full bg-primary text-white py-2 rounded cursor-pointer hover:bg-secondary"
                         >
                             {loading ? 'Verifying...' : 'Verify OTP'}
                         </button>
