@@ -3,12 +3,13 @@ import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
-
+import PropertyDropdown from "../property/property_dropdown";
 
 const Header = ({ onToggleSidebar }) => {
     const router = useRouter();
     const [user, setUser] = useState(null);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedProperty, setSelectedProperty] = useState("");
     const dropdownRef = useRef();
 
     useEffect(() => {
@@ -53,10 +54,11 @@ const Header = ({ onToggleSidebar }) => {
 
                 {/* Right: Properties + Profile */}
                 <div className="flex flex-wrap gap-4 items-center justify-end w-full md:w-auto" ref={dropdownRef}>
-                    {user?.role === 'Customer' && (
-                        <>
-                            {/* Properties Link */}
-                        </>
+                    {user?.role?.toLowerCase() === 'customer' && (
+                        <PropertyDropdown
+                            selected={selectedProperty}
+                            onChange={(e) => setSelectedProperty(e.target.value)}
+                        />
                     )}
 
                     {/* Profile Dropdown */}
@@ -66,9 +68,7 @@ const Header = ({ onToggleSidebar }) => {
                             className="flex items-center gap-2 px-3 py-1"
                         >
                             <img
-                                src={user?.profilePicture?.name
-                                    ? URL.createObjectURL(user.profilePicture)
-                                    : "/images/user.png"}
+                                src={user?.profilePicture ?? "/images/user.png"}
                                 alt="Profile"
                                 className="h-8 w-8 rounded-full object-cover"
                             />
