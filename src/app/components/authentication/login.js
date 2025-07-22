@@ -11,7 +11,6 @@ const LoginForm = () => {
     const [loading, setLoading] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + '/auth';
-    console.log("Base URL:", baseUrl);
     const router = useRouter();
 
     useEffect(() => {
@@ -45,7 +44,7 @@ const LoginForm = () => {
             const res = await fetch(`${baseUrl}/send-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contact: normalized }),
+                body: JSON.stringify({ phone_number: normalized }),
             });
 
             let data = {};
@@ -59,6 +58,8 @@ const LoginForm = () => {
                 setStep('verify');
                 sessionStorage.setItem('otp_contact', normalized);
                 sessionStorage.setItem('otp_sent_at', Date.now().toString());
+
+                setOtp(''); // ✅ Clear old OTP from input box
                 setResendCooldown(30);
                 toast.success('OTP sent successfully');
             } else {
@@ -81,25 +82,34 @@ const LoginForm = () => {
             const res = await fetch(`${baseUrl}/verify-otp`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contact: normalized, otp }),
+                body: JSON.stringify({ phone_number: normalized, otp }),
             });
 
             const data = await res.json();
-            if (data.success) {
-                toast.success('OTP verified! Redirecting...');
+            console.log("✅ OTP verify response:", data);
+
+            if (res.ok && (data.success || data.access_token)) {
+                toast.success(data.message || 'OTP verified! Redirecting...');
                 sessionStorage.setItem('auth_token', data.access_token);
                 sessionStorage.removeItem('otp_contact');
                 sessionStorage.removeItem('otp_sent_at');
                 localStorage.setItem('loggedInUser', JSON.stringify(data.user));
                 router.push('/customer/dashboard/property_summary');
             } else {
-                toast.error(data.message || 'Invalid OTP');
+                const errorMessage = data?.message || data?.detail || 'OTP verification failed';
+                toast.error(errorMessage);
             }
+
         } catch (err) {
+            console.error(err);
             toast.error('Server error while verifying OTP');
         }
+
         setLoading(false);
     };
+
+
+
 
     return (
         <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
