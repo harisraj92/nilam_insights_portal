@@ -13,13 +13,9 @@ export default function PropertySummary() {
             const code = localStorage.getItem("selectedPropertyCode") || "";
             setSelectedProperty(code);
         };
-
-        updateSelected(); // Initial read
-
-        // ✅ Sync even if dropdown updated in same tab
-        const interval = setInterval(updateSelected, 500); // Check every 0.5s
-
-        return () => clearInterval(interval); // Cleanup
+        updateSelected();
+        const interval = setInterval(updateSelected, 500);
+        return () => clearInterval(interval);
     }, []);
 
     // ✅ Fetch property summary data once
@@ -34,10 +30,8 @@ export default function PropertySummary() {
             return;
         }
 
-        axios.get(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/customer/properties/summary`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+        axios.get(`${process.env.NEXT_PUBLIC_PROPERTY_API}/api/customer/properties/summary`, {
+            headers: { Authorization: `Bearer ${token}` },
         })
             .then(res => {
                 setData(res.data);
@@ -87,19 +81,36 @@ export default function PropertySummary() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     {filteredData.map((item) => (
-                        <div key={item.id} className="bg-white shadow rounded-lg p-4 border">
-                            <h2 className="text-md font-semibold mb-1">{item.name}</h2>
-                            <p className="text-sm text-gray-600 mb-2">{getLastVisitText(item.last_visited_at)}</p>
-                            <span className={`inline-block text-white text-xs px-2 py-1 rounded-full ${getFenceStatusColor(item.fence_status)} mb-2`}>
-                                {(item.fence_status || "Unknown").charAt(0).toUpperCase() + (item.fence_status || "").slice(1)}
+                        <div key={item.property_id} className="bg-white shadow rounded-lg p-4 border">
+                            <img
+                                src={item.photo_url || "/images/default_image.jpg"}
+                                alt={item.property_name}
+                                className="w-full h-40 object-cover rounded mb-3"
+                                onError={(e) => {
+                                    e.target.onerror = null;
+                                    e.target.src = "/images/default_image.jpg";
+                                }}
+                            />
+                            <h2 className="text-md font-semibold mb-1">{item.property_name}</h2>
+                            <p className="text-sm text-gray-600 mb-2">{getLastVisitText(item.last_visited)}</p>
+
+                            {/* Fencing Badge */}
+                            <span className={`inline-block text-white text-xs px-2 py-1 rounded-full ${getFenceStatusColor(item.fencing_status)} mb-2`}>
+                                {(item.fencing_status || "Unknown").charAt(0).toUpperCase() + (item.fencing_status || "").slice(1)}
                             </span>
-                            <p className="text-sm font-semibold">
+
+                            {/* Risk Level */}
+                            <p className="text-sm font-semibold mb-1">
                                 Risk Level: <span className={getRiskLabel(item.risk_level)}>{item.risk_level || "N/A"}</span>
                             </p>
+
+                            {/* Remarks */}
                             <p className="text-sm text-gray-700 mb-2">{item.remarks || "No remarks available"}</p>
+
+                            {/* Bottom Meta */}
                             <div className="flex justify-between items-center text-xs mt-4 pt-2 border-t">
-                                <span className={item.fence_status === "fenced" ? "text-green-600 font-medium" : "text-red-500 font-medium"}>
-                                    {item.fence_status === "fenced" ? "✅ Fencing Installed" : "⚠️ Alert raised"}
+                                <span className={item.fencing_status === "fenced" ? "text-green-600 font-medium" : "text-red-500 font-medium"}>
+                                    {item.fencing_status === "fenced" ? "✅ Fencing Installed" : "⚠️ Alert raised"}
                                 </span>
                                 <span className="text-gray-400">Notifications</span>
                             </div>

@@ -2,7 +2,7 @@
 
 const getFilteredNavItems = async (role) => {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+        const baseUrl = process.env.NEXT_PUBLIC_USER_API;
 
         const response = await fetch(`${baseUrl}/rbac/permissions/${role}`);
         if (!response.ok) throw new Error('Failed to fetch sidebar items');

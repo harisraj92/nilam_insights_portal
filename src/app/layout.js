@@ -2,6 +2,7 @@
 import "./css/globals.css";
 import { Roboto_Flex } from "next/font/google";
 import LayoutWrapper from "./components/layout/layoutwrapper";
+import IdleLogoutWrapper from "./components/layout/IdleLogoutWrapper";
 
 const roboto_flex = Roboto_Flex({
   subsets: ['latin'],
@@ -68,6 +69,7 @@ export default function RootLayout({ children }) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
       <body>
+        <IdleLogoutWrapper />
         <LayoutWrapper>
           {children}</LayoutWrapper>
       </body>

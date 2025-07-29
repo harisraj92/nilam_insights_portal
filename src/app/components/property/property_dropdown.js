@@ -11,12 +11,12 @@ export default function PropertyDropdown({ selected, onChange }) {
         async function fetchData() {
             const token = sessionStorage.getItem("auth_token");
             console.log("🪪 Token from sessionStorage:", token);
-            console.log("✅ API BASE URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
+            console.log("✅ API BASE URL:", process.env.NEXT_PUBLIC_PROPERTY_API);
             console.log("🪪 Token from sessionStorage:", token);
-            console.log("📡 Final API URL:", `${process.env.NEXT_PUBLIC_API_BASE_URL}/header/properties/property-dropdown`);
+            console.log("📡 Final API URL:", `${process.env.NEXT_PUBLIC_PROPERTY_API}/header/properties/property-dropdown`);
             try {
                 const res = await axios.get(
-                    `${process.env.NEXT_PUBLIC_API_BASE_URL}/header/properties/property-dropdown`,
+                    `${process.env.NEXT_PUBLIC_PROPERTY_API}/header/properties/property-dropdown`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,
