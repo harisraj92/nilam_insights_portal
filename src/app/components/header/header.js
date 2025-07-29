@@ -14,6 +14,7 @@ const Header = ({ onToggleSidebar }) => {
 
     useEffect(() => {
         const storedUser = JSON.parse(localStorage.getItem("loggedInUser") || "null");
+        console.log("🧍‍♂️ Logged in user:", storedUser);
         setUser(storedUser);
 
         const handleClickOutside = (e) => {
@@ -21,6 +22,7 @@ const Header = ({ onToggleSidebar }) => {
                 setDropdownOpen(false);
             }
         };
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
@@ -54,12 +56,13 @@ const Header = ({ onToggleSidebar }) => {
 
                 {/* Right: Properties + Profile */}
                 <div className="flex flex-wrap gap-4 items-center justify-end w-full md:w-auto" ref={dropdownRef}>
-                    {user?.role?.toLowerCase() === 'customer' && (
+                    {user && (
                         <PropertyDropdown
                             selected={selectedProperty}
                             onChange={(e) => setSelectedProperty(e.target.value)}
                         />
                     )}
+
 
                     {/* Profile Dropdown */}
                     <div className="relative">

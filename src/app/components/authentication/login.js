@@ -10,7 +10,7 @@ const LoginForm = () => {
     const [step, setStep] = useState('send');
     const [loading, setLoading] = useState(false);
     const [resendCooldown, setResendCooldown] = useState(0);
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL + '/auth';
+    const baseUrl = process.env.NEXT_PUBLIC_USER_API + '/auth';
     const router = useRouter();
 
     useEffect(() => {
